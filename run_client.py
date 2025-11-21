@@ -36,7 +36,7 @@ async def main():
             if chunk.event != "messages":
                 continue
             res = chunk.data[0]
-            if res["type"] == "AIMessageChunk":
+            if res["type"] in ["AIMessageChunk", "ai"]:
                 print(res["content"], end="")
         print()
 
