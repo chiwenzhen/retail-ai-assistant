@@ -15,10 +15,10 @@ RUN addgroup --system app && adduser --system --ingroup app app
 # Builder stage
 # -----------------------------
 FROM base AS builder
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#    build-essential \
+#    libpq-dev \
+#    && rm -rf /var/lib/apt/lists/*
 
 # Copy project metadata and source
 COPY pyproject.toml ./
@@ -35,9 +35,9 @@ RUN python -m pip install --upgrade pip && \
 FROM base AS final
 
 # Install only minimal runtime libs (psycopg[binary] used, so libpq not required at runtime)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#    ca-certificates \
+#    && rm -rf /var/lib/apt/lists/*
 
 # Copy installed Python packages and console scripts from builder
 COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
