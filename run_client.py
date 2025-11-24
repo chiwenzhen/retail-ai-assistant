@@ -70,5 +70,29 @@ def sync_main():
         )
         print(response["messages"][-1]["content"])
 
-asyncio.run(main())
+def run_prod_rec_agent():
+    client = get_sync_client(url="http://localhost:8000")
+
+    # Create thread
+    thread = client.threads.create()
+    thread_id = thread["thread_id"]
+
+    # Stream responses (identical to LangGraph Platform)
+    questions = [
+        "请给我推荐一些产品？",
+    ]
+    for question in questions:
+        print("User:", end="")
+        print(question)
+        print("AI:", end="")
+
+        response = client.runs.wait(
+            thread_id=thread_id,
+            assistant_id="prod_rec_agent",
+            input={"user_id": "1234567890"},
+        )
+        print(response["messages"][-1]["content"])
+
+# asyncio.run(main())
 # sync_main()
+run_prod_rec_agent()
