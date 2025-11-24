@@ -4,6 +4,7 @@ from langgraph.graph import START, END, MessagesState, StateGraph
 from typing import TypedDict, Literal
 from langgraph.types import interrupt, Command, RetryPolicy
 from langchain.messages import AIMessage
+from retail_agent.state import RetailAgentState
 logger = logging.getLogger(__name__)
 
 # Define the nodes
@@ -22,25 +23,6 @@ llm = init_chat_model(
     api_key="sk-72fb5cc108ef4c52b08c549d25963bff"
 )
 
-class UserProfile:
-    age: int
-    risk_grd: str
-
-class UserBehavior:
-    buy_lc_list: list[str]
-    buy_jj_list: list[str]
-
-class RetailAgentState(MessagesState):
-    # 用户信息
-    user_id: str
-    user_profile: UserProfile
-    query: str
-
-    # 意图分类
-    user_intent: str
-
-    # 推荐产品
-    rec_list: str
 
 def classify_intent(state: RetailAgentState) -> Command[Literal["qa", "prod_rec", "prod_detail", "prod_diff"]]:
     print(f"running classify_intent")
@@ -49,24 +31,24 @@ def classify_intent(state: RetailAgentState) -> Command[Literal["qa", "prod_rec"
     last_question = state["messages"][-1].content
     classify_intent_prompt = f"""
     请分析用户输入的Query，将其意图分类到这三类：
-    1.财富产品推荐：当用户让你推荐财富产品时，包括储蓄存款、理财、基金、资管、保险、贵金属、柜台债、国债等等
-    2.财富产品详情：当用户让你咨询某款具体的财富产品时，包括储蓄存款、理财、基金、资管、保险、贵金属、柜台债、国债等等
-    3.财富产品对比：当用户让你对比两款具体的财富产品差异时，包括储蓄存款、理财、基金、资管、保险、贵金属、柜台债、国债等等
-    4.其他：其他问题时触发
-    要求：只能输出[财富产品推荐, 财富产品详情, 财富产品查询, 财富产品对比, 其他]之中的一个，不得输出其他内容。
+    1.财富产品推荐意图：当用户让你推荐财富产品时，包括储蓄存款、理财、基金、资管、保险、贵金属、柜台债、国债等等
+    2.财富产品详情意图：当用户让你咨询某款具体的财富产品时，包括储蓄存款、理财、基金、资管、保险、贵金属、柜台债、国债等等
+    3.财富产品对比意图：当用户让你对比两款具体的财富产品差异时，包括储蓄存款、理财、基金、资管、保险、贵金属、柜台债、国债等等
+    4.其他意图：其他问题时触发
+    要求：只能输出[财富产品推荐意图, 财富产品详情意图, 财富产品对比意图, 其他意图]之中的一个，不得输出其他内容。
     Query: {last_question}
     """
     logger.info(f"classify_intent_prompt= {classify_intent_prompt}")
     # Get structured response directly as dict
     user_intent = intent_llm.invoke(classify_intent_prompt).content
     logger.info(f"user_intent= {user_intent}")
-    if user_intent == "财富产品推荐":
+    if user_intent == "财富产品推荐意图":
         goto = "prod_rec"
-    elif user_intent == "财富产品详情":
+    elif user_intent == "财富产品详情意图":
         goto = "prod_detail"
-    elif user_intent == "财富产品对比":
+    elif user_intent == "财富产品对比意图":
         goto = "prod_diff"
-    elif user_intent == "其他":
+    elif user_intent == "其他意图":
         goto = "qa"
     else:
         goto = "qa"
