@@ -13,7 +13,7 @@ from prod_rec_agent.state import InputState, State
 from prod_rec_agent.utils import load_chat_model
 
 def get_user_preference(state: State):
-    user_id = state["user_id"]
+    user_id = state.user_id
 
     # 根据user_id获取用户信息
     user_profile="""
@@ -51,9 +51,9 @@ async def get_candidate_products(state: State):
 async def call_model(
     state: State, runtime: Runtime[Context]
 ) -> dict[str, list[AIMessage]]:
-    user_profile = state["user_profile"]
-    buy_history = state["buy_history"]
-    candidate_products = state["candidate_products"]
+    user_profile = state.user_profile
+    buy_history = state.buy_history
+    candidate_products = state.candidate_products
     model = init_chat_model(
         "qwen3-max",
         model_provider="openai",
