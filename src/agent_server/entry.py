@@ -3,12 +3,20 @@
 import asyncio
 import os
 import sys
+from uuid import uuid4
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 from langgraph_sdk import get_client, get_sync_client
 
 from dotenv import load_dotenv
+from pydantic import (
+    BaseModel,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,6 +41,9 @@ active_runs: dict[str, asyncio.Task] = {}
 setup_logging()
 logger = structlog.getLogger(__name__)
 
+
+AEGRA_HOST = os.getenv("AEGRA_HOST")
+logger.info(f"AEGRA_HOST={AEGRA_HOST}")
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
@@ -66,18 +77,53 @@ app.add_middleware(
 # Add middleware to handle double-encoded JSON from frontend
 app.add_middleware(DoubleEncodedJSONMiddleware)
 
+class AgentRequest(BaseModel):
+    thread_id: str = None
+    assistant_id: str
+    input: dict[str, Any]
+    config: dict[str, Any] | None = {}
+    context: dict[str, Any] | None = {}
+    user_id: str
+
+class AgentResponse(BaseModel):
+    thread_id: str = None
+    assistant_id: str
+    input: dict[str, Any]
+    config: dict[str, Any] | None = {}
+    context: dict[str, Any] | None = {}
+    user_id: str
+
 @app.get("/")
 async def root() -> dict[str, str]:
     """Root endpoint"""
     return {"message": "Light Server", "version": "0.1.0", "status": "running"}
 
-@app.get("/threads")
-async def root() -> dict[str, str]:
-    client = get_client(url="http://localhost:8000")
+@app.post("/threads/create")
+async def create_thread() -> dict[str, str]:
+    client = get_client(url=AEGRA_HOST)
     thread = await client.threads.create()
     thread_id = thread["thread_id"]
     return {"thread_id":thread_id}
 
+@app.post("/threads/runs/stream")
+async def thread_run_stream(request: AgentRequest):
+    client = get_client(url=AEGRA_HOST)
+    thread_id = request.request
+    if thread_id is None:
+        thread_id = str(uuid4())
+    stream = client.runs.stream(
+        thread_id=thread_id,
+        assistant_id=request.assistant_id,
+        input=request.input,
+        stream_mode=["messages-tuple"],
+    )
+
+    async for chunk in stream:
+        if chunk.event != "messages":
+            continue
+        res = chunk.data[0]
+        if res["type"] in ["AIMessageChunk", "ai"]:
+            yield {"content": res["content"]}
 
 if __name__ == "__main__":
     import os
