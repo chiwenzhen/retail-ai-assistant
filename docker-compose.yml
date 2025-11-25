@@ -21,7 +21,7 @@ services:
   aegra:
     build:
       context: .
-      dockerfile: deployments/docker/Dockerfile
+      dockerfile: deployments/docker/Dockerfile.main
     platform: linux/amd64
     ports:
       - "${PORT:-8000}:${PORT:-8000}"
