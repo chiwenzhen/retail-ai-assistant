@@ -64,9 +64,9 @@ services:
     environment:
       - AEGRA_HOST=aegra
       - PORT=${PORT:-8100}
-    depends_on:
-      aegra:
-        condition: service_healthy
+#    depends_on:
+#      aegra:
+#        condition: service_healthy
     volumes:
       - ./src:/app/src:ro # for hot reload support of server
 
