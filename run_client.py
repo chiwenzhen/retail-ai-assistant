@@ -70,29 +70,39 @@ def sync_main():
         )
         print(response["messages"][-1]["content"])
 
-def run_prod_rec_agent():
-    client = get_sync_client(url="http://localhost:8000")
+async def run_prod_rec_agent():
+    # Connect to your self-hosted Aegra instance
+    client = get_client(url="http://localhost:8000")
 
     # Create thread
-    thread = client.threads.create()
+    thread = await client.threads.create()
     thread_id = thread["thread_id"]
 
     # Stream responses (identical to LangGraph Platform)
     questions = [
-        "请给我推荐一些产品？",
+        "请给我推荐一些理财产品",
     ]
     for question in questions:
         print("User:", end="")
         print(question)
         print("AI:", end="")
 
-        response = client.runs.wait(
+        stream = client.runs.stream(
             thread_id=thread_id,
             assistant_id="prod_rec_agent",
-            input={"user_id": "1234567890"},
+            input={"user_id": "123456"},
+            stream_mode=["messages-tuple"],
+            on_disconnect="cancel",
         )
-        print(response["messages"][-1]["content"])
+
+        async for chunk in stream:
+            if chunk.event != "messages":
+                continue
+            res = chunk.data[0]
+            if res["type"] in ["AIMessageChunk", "ai"]:
+                print(res["content"], end="")
+        print()
 
 # asyncio.run(main())
 # sync_main()
-run_prod_rec_agent()
+asyncio.run(run_prod_rec_agent())
