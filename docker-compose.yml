@@ -2,6 +2,7 @@ services:
   # PostgreSQL database for LangGraph and metadata
   postgres:
     image: postgres:16
+    platform: linux/amd64
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -21,6 +22,7 @@ services:
     build:
       context: .
       dockerfile: deployments/docker/Dockerfile
+    platform: linux/amd64
     ports:
       - "${PORT:-8000}:${PORT:-8000}"
     environment:
@@ -49,6 +51,7 @@ services:
   # Redis
   redis:
     image: redis:7-alpine
+    platform: linux/amd64
     ports:
       - "6379:6379"
     volumes:
