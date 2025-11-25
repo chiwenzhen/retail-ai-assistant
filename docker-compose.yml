@@ -48,7 +48,16 @@ services:
         uvicorn src.agent_server.main:app --host 0.0.0.0 --port $${PORT:-8000} --reload
       "
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: [ "CMD", "python", "-c", "
+      import urllib.request;
+      import urllib.error;
+      try:
+          with urllib.request.urlopen('http://localhost:8000/health', timeout=5) as response:
+              exit(0 if response.getcode() == 200 else 1);
+      except Exception as e:
+          print(f'Health check failed: {e}');
+          exit(1);
+            " ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -64,9 +73,9 @@ services:
     environment:
       - AEGRA_HOST=aegra
       - ENTRY_PORT=${ENTRY_PORT:-8100}
-#    depends_on:
-#      aegra:
-#        condition: service_healthy
+    depends_on:
+      aegra:
+        condition: service_healthy
     volumes:
       - ./src:/app/src:ro # for hot reload support of server
 
