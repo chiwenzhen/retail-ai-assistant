@@ -47,6 +47,28 @@ services:
         echo 'Starting Aegra server...' &&
         uvicorn src.agent_server.main:app --host 0.0.0.0 --port $${PORT:-8000} --reload
       "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # entry Server
+  entry_server:
+    build:
+      context: .
+      dockerfile: deployments/docker/Dockerfile.entry
+    platform: linux/amd64
+    ports:
+      - "${PORT:-8100}:${PORT:-8100}"
+    environment:
+      - AEGRA_HOST=aegra
+      - PORT=${PORT:-8100}
+    depends_on:
+      aegra:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src:ro # for hot reload support of server
 
   # Redis
   redis:
