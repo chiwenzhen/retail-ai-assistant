@@ -62,7 +62,7 @@ services:
     ports:
       - "${ENTRY_PORT:-8100}:${ENTRY_PORT:-8100}"
     environment:
-      - AEGRA_HOST=aegra
+      - AEGRA_URL=http://aegra:${PORT:-8000}
       - ENTRY_PORT=${ENTRY_PORT:-8100}
     depends_on:
       aegra:

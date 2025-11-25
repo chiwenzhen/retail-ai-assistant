@@ -42,8 +42,8 @@ setup_logging()
 logger = structlog.getLogger(__name__)
 
 
-AEGRA_HOST = os.getenv("AEGRA_HOST")
-logger.info(f"AEGRA_HOST={AEGRA_HOST}")
+AEGRA_URL = os.getenv("AEGRA_URL")
+logger.info(f"AEGRA_URL={AEGRA_URL}")
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
@@ -100,14 +100,14 @@ async def root() -> dict[str, str]:
 
 @app.post("/threads/create")
 async def create_thread() -> dict[str, str]:
-    client = get_client(url=AEGRA_HOST)
+    client = get_client(url=AEGRA_URL)
     thread = await client.threads.create()
     thread_id = thread["thread_id"]
     return {"thread_id":thread_id}
 
 @app.post("/threads/runs/stream")
 async def thread_run_stream(request: AgentRequest):
-    client = get_client(url=AEGRA_HOST)
+    client = get_client(url=AEGRA_URL)
     thread_id = request.request
     if thread_id is None:
         thread_id = str(uuid4())
