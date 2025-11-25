@@ -21,7 +21,6 @@ services:
     build:
       context: .
       dockerfile: deployments/docker/Dockerfile
-    image: czbank/retail-ai-assistant:latest
     ports:
       - "${PORT:-8000}:${PORT:-8000}"
     environment:
