@@ -22,6 +22,7 @@ FROM base AS builder
 
 # Copy project metadata and source
 COPY pyproject.toml ./
+COPY README.md ./
 COPY src/ ./src/
 
 # Install project (builds wheel and installs dependencies specified in pyproject)
