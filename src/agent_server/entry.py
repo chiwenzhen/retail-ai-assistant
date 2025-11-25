@@ -23,21 +23,8 @@ from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from starlette.middleware.authentication import AuthenticationMiddleware
 
-from .api.assistants import router as assistants_router
-from .api.runs import router as runs_router
-from .api.store import router as store_router
-from .api.threads import router as threads_router
-from .core.auth_middleware import get_auth_backend, on_auth_error
-from .core.database import db_manager
-from .core.health import router as health_router
 from .middleware import DoubleEncodedJSONMiddleware, StructLogMiddleware
-from .models.errors import AgentProtocolError, get_error_type
-from .observability.base import get_observability_manager
-from .observability.langfuse_integration import _langfuse_provider
-from .services.event_store import event_store
-from .services.langgraph_service import get_langgraph_service
 from .utils.setup_logging import setup_logging
 
 # Task management for run cancellation
@@ -87,7 +74,9 @@ async def root() -> dict[str, str]:
 @app.get("/threads")
 async def root() -> dict[str, str]:
     client = get_client(url="http://localhost:8000")
-    return {"message": "light server", "version": "0.1.0", "status": "running"}
+    thread = await client.threads.create()
+    thread_id = thread["thread_id"]
+    return {"thread_id":thread_id}
 
 
 if __name__ == "__main__":
