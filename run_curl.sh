@@ -6,7 +6,7 @@ curl --request POST \
 
 # 请求agent
 curl --request POST \
-    --url "localhost:8000/threads/7c8ff98f-666f-4320-ad50-a7d985ce4cc3/runs/stream" \
+    --url "localhost:8000/threads/de6c6aec-0172-4b20-9d70-00743530dea8/runs/stream" \
     --header 'Content-Type: application/json' \
     --data '{
         "assistant_id": "agent",
@@ -19,6 +19,6 @@ curl --request POST \
             ]
         },
         "stream_mode": [
-            "updates"
+            "messages"
         ]
     }'
