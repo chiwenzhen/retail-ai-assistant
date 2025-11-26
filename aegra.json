@@ -5,6 +5,7 @@
     "subgraph_agent": "./graphs/subgraph_agent/graph.py:graph",
     "subgraph_hitl_agent": "./graphs/subgraph_hitl_agent/graph.py:graph",
     "retail_agent": "./graphs/retail_agent/graph.py:graph",
-    "prod_rec_agent": "./graphs/prod_rec_agent/graph.py:graph"
+    "prod_rec_agent": "./graphs/prod_rec_agent/graph.py:graph",
+    "asset_qa_agent": "./graphs/asset_qa_agent/graph.py:graph"
   }
 }
