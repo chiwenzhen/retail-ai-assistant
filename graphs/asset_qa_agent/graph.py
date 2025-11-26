@@ -15,11 +15,11 @@ from langgraph.graph import StateGraph, START, END
 from asset_qa_agent.context import Context
 from asset_qa_agent.state import InputState, State
 from asset_qa_agent.utils import load_chat_model
-from asset_qa_agent.tools import database_search
+from asset_qa_agent.tools import financial_knowledge_search, multiply
 
 
 # tools = [database_search]
-tools = []
+tools = [multiply, financial_knowledge_search]
 tools_by_name = {tool.name: tool for tool in tools}
 model = init_chat_model(
     "qwen3-max",
@@ -39,16 +39,16 @@ def llm_call(
 
     return {
         "messages": [
-            model_with_tools.invoke(state["messages"])
+            model_with_tools.invoke(state.messages)
         ],
-        "llm_calls": state.get('llm_calls', 0) + 1
+        "llm_calls": state.llm_calls + 1
     }
 
-def tool_node(state: dict):
+def tool_node(state: State):
     """Performs the tool call"""
 
     result = []
-    for tool_call in state["messages"][-1].tool_calls:
+    for tool_call in state.messages[-1].tool_calls:
         tool = tools_by_name[tool_call["name"]]
         observation = tool.invoke(tool_call["args"])
         result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
@@ -57,7 +57,7 @@ def tool_node(state: dict):
 def should_continue(state: State) -> Literal["tool_node", END]:
     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
 
-    messages = state["messages"]
+    messages = state.messages
     last_message = messages[-1]
 
     # If the LLM makes a tool call, then perform an action

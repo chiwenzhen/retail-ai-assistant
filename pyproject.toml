@@ -43,6 +43,10 @@ dependencies = [
     "langfuse>=3.3.4",
     "structlog>=25.4.0",
     "asgi-correlation-id>=4.3.4",
+    "langchain-chroma~=1.0.0",
+    "langchain-openai>=1.1.0",
+    "dashscope>=1.25.2",
+    "langchain_community>=0.4.1",
 ]
 
 [project.urls]

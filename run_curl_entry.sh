@@ -35,3 +35,18 @@ curl --request POST \
       }
   }'
 
+#asset_qa_agent
+curl --no-buffer --request POST \
+    --url "localhost:8100/threads/runs/stream" \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "assistant_id": "asset_qa_agent",
+        "input": {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "互联互通资金累计流入情况如何？"
+                }
+            ]
+        }
+    }'

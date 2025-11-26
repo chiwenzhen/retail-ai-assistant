@@ -24,6 +24,7 @@ FROM base AS builder
 COPY pyproject.toml ./
 COPY README.md ./
 COPY src/ ./src/
+COPY vector_db/ ./vector_db/
 
 # Install project (builds wheel and installs dependencies specified in pyproject)
 RUN python -m pip install --upgrade pip && \
