@@ -24,10 +24,15 @@ FROM base AS builder
 COPY pyproject.toml ./
 COPY README.md ./
 COPY src/ ./src/
+COPY offline_packages/ ./offline_packages/
 
 # Install project (builds wheel and installs dependencies specified in pyproject)
-RUN python -m pip install --upgrade pip && \
-    pip install --no-cache-dir .
+#RUN python -m pip install --upgrade pip && \
+#    pip install --no-cache-dir .
+
+#RUN pip install --no-cache-dir . -i http://host.docker.internal:8080
+RUN pip install --no-cache-dir --no-index --find-links=./offline_packages .
+RUN rm -rf ./offline_packages
 
 # -----------------------------
 # Final, minimal runtime image
@@ -46,6 +51,8 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 # Copy src to keep compatibility with current compose command using 'src.agent_server.main:app'
 # (We can switch compose to 'agent_server.main:app' later and drop this for a smaller image.)
 COPY src/ ./src/
+COPY vector_db/ ./vector_db/
+RUN chmod -R 777 ./vector_db
 
 EXPOSE 8100
 
