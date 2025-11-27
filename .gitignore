@@ -28,3 +28,4 @@ htmlcov/
 # Pre-commit
 .pre-commit-cache/
 /offline_packages/
+/a.txt
