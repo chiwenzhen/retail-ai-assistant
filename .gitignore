@@ -29,3 +29,4 @@ htmlcov/
 .pre-commit-cache/
 /offline_packages/
 /a.txt
+/export_image/*.tar
